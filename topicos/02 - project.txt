@@ -1,0 +1,127 @@
+====================================================================================================
+CURSO API REST KTOR - PROJECT
+====================================================================================================
+
+
+Projeto
+----------------------------------------------------------------------------------------------------
+- Abrir o 'IntelliJ'
+
+- Clicar no botão 'New Project'
+
+- Marcar a opção 'Create a simple project' e clicar no botão 'Next'
+
+- Preencher os seguintes campos
+
+  Name: expense-book
+  Language: Kotlin
+  Build system: Maven
+  
+  Advanced Settings
+    GroupId: com.ctseducare
+    ArtifactId: expense-book
+    
+
+- Clicar no botão 'Create'
+
+
+Atualizando versões
+----------------------------------------------------------------------------------------------------
+- Abrir o arquivo 'pom.xml' e atualizar as versões sugeridas pelo IntelliJ
+
+- Criar a propriedade 'kotlin.version' com o valor da versão sugerida pelo IntelliJ
+
+  <kotlin.version>X.X.X</kotlin.version>
+  
+  Obs:
+  A versão do Kotlin esta nas dependências 'kotlin-test-junit5', 'kotlin-stdlib-jdk8' e no
+  plugin 'kotlin-maven-plugin'
+
+
+Ktor dependency
+----------------------------------------------------------------------------------------------------
+- Criar a propriedade 'ktor.version'
+
+  <ktor.version>X.X.X</ktor.version>
+
+  Obs:
+  Pegar a última versão no Maven Repository
+  
+- Adicionar a seguinte dependência
+
+        ...
+        <dependency>
+            <groupId>io.ktor</groupId>
+            <artifactId>ktor-server-core-jvm</artifactId>
+            <version>${ktor.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.ktor</groupId>
+            <artifactId>ktor-server-netty-jvm</artifactId>
+            <version>${ktor.version}</version>
+        </dependency>        
+        ...
+
+
+Endpoint Status
+----------------------------------------------------------------------------------------------------
+- Criar o pacote 'com.ctseducare.expensebook.route'
+
+- Criar o arquivo 'StatusRoute.kt'
+
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.application.call
+import io.ktor.server.response.respond
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.get
+import io.ktor.server.routing.route
+
+fun Route.status() {
+    route ("/status") {
+        get {
+            call.respond(HttpStatusCode.OK, "I am up!")
+        }
+    }
+}
+
+
+Routing
+----------------------------------------------------------------------------------------------------
+- Criar o pacote 'com.ctseducare.expensebook.plugins'
+
+- Criar o arquivo 'Routing.kt'
+
+import com.ctseducare.expensebook.route.status
+import io.ktor.server.application.Application
+import io.ktor.server.routing.routing
+
+fun Application.configureRouting() {
+    routing {
+        status()
+    }
+}
+
+
+Função principal
+----------------------------------------------------------------------------------------------------
+- Criar o arquivo 'Application.kt' dentro do pacote 'com.ctseducare.expensebook'
+
+import com.ctseducare.expensebook.plugins.configureRouting
+import io.ktor.server.application.Application
+
+fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
+
+fun Application.module() {
+    configureRouting()
+}
+
+
+Verificando
+----------------------------------------------------------------------------------------------------
+- Dentro do arquivo 'Application.kt', clicar com botão direito, selecionar Run 'ApplicationKt'
+
+- Abrir um navegador web e informar o endereço abaixo
+
+  http://localhost:8080/status
+
+

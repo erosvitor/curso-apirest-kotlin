@@ -1,0 +1,24 @@
+====================================================================================================
+CURSO API REST KTOR - DATABASE
+====================================================================================================
+
+
+Database
+----------------------------------------------------------------------------------------------------
+- Para criar o banco de dados, conectar no console do servidor do MySQL e executar os seguintes 
+comandos:
+
+
+CREATE DATABASE expenses;
+
+USE expenses;
+
+CREATE TABLE expenses (
+  id INTEGER NOT NULL AUTO_INCREMENT,
+  description VARCHAR(100) NOT NULL,
+  value DECIMAL(11,2) NOT NULL,
+  paid_at DATE NOT NULL,
+  PRIMARY KEY (id)
+);
+
+

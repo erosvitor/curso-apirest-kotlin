@@ -1,0 +1,88 @@
+====================================================================================================
+CURSO API REST KTOR - LOGS
+====================================================================================================
+
+
+Dependência
+----------------------------------------------------------------------------------------------------
+- Adicionar a seguinte propriedade
+
+        ...
+        <log4j2.version>2.19.0</log4j2.version>
+        <kotlin-logging.version>3.0.4</kotlin-logging.version>
+        ...
+        
+
+- Adicionar a seguinte dependência
+
+        ... 
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j-impl</artifactId>
+            <version>${log4j2.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.microutils</groupId>
+            <artifactId>kotlin-logging-jvm</artifactId>
+            <version>${kotlin-logging.version}</version>
+        </dependency>        
+        ...
+
+
+Exception
+----------------------------------------------------------------------------------------------------
+- Criar a exceção 'DatabaseException.kt'
+
+class DatabaseException(override val message: String) : Throwable()
+
+
+Objeto 'logger'
+----------------------------------------------------------------------------------------------------
+- Criar o objeto 'logger' na classe ExpenseDAO
+
+    ... 
+    private companion object {
+        val logger = KotlinLogging.logger(this::class.qualifiedName!!)
+    }
+    ...
+
+
+e.printStackTrace()
+----------------------------------------------------------------------------------------------------
+- No método 'insert' substituir o 'e.printStackTrace()' pelo seguinte código
+
+    ...
+    logger.error { e.message }
+    throw DatabaseException("Ocorreu um erro ao inserir a despesa!")
+    ...
+
+  Obs:
+  Efetuar a substituição nos demais métodos da classe 'ExpenseDAO'
+
+
+Rotas
+----------------------------------------------------------------------------------------------------
+- Alterar a rota POST conforme abaixo
+
+        ...
+        post {
+            val request = call.receive<Expense>()
+            try {
+                val response = service.insert(request)
+                call.respond(HttpStatusCode.OK, response)
+            } catch (e: DatabaseException) {
+                call.respond(HttpStatusCode.InternalServerError, e.message)
+            }
+        }
+        ...
+
+- Alterar o block 'catch' das rotas PUT, DELETE e GET conforme abaixo
+
+        ...
+        } catch (e1: ResourceNotFoundException) {
+            call.respond(HttpStatusCode.NotFound, e1.message)
+        } catch (e2: DatabaseException) {
+            call.respond(HttpStatusCode.InternalServerError, e2.message)
+        }
+        ...
+

@@ -1,0 +1,21 @@
+====================================================================================================
+CURSO API REST KTOR - MODEl
+====================================================================================================
+
+
+Model
+----------------------------------------------------------------------------------------------------
+- Criar o pacote 'com.ctseducare.expensebook.model'
+
+- Criar o data class 'Expense.kt'
+
+@Serializable
+data class Expense(
+    var id: Int? = null,
+    var description: String,
+    var value: Double,
+    @Serializable(with = InstantSerializer::class)
+    var paid_at: Instant
+)
+
+

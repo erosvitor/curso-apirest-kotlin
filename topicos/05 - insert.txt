@@ -1,0 +1,127 @@
+====================================================================================================
+CURSO API REST KTOR - INSERT
+====================================================================================================
+
+
+Hikari
+----------------------------------------------------------------------------------------------------
+- Adicionar a seguinte propriedade no arquivo 'pom.xml'
+
+  <hikari.version>5.0.1</hikari.version>
+
+- Adicionar a seguinte dependência
+
+        ...
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+            <version>${hikari.version}</version>
+        </dependency>
+        ...
+
+
+MySQL
+----------------------------------------------------------------------------------------------------
+- Adicionar a seguinte propriedade no arquivo 'pom.xml'
+
+  <mysql.version>8.0.31</mysql.version>
+
+- Adicionar a seguinte dependência
+
+        ...
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>${mysql.version}</version>
+        </dependency>
+        ...
+
+
+DAO
+----------------------------------------------------------------------------------------------------
+- Criar o pacote 'com.ctseducare.expensebook.dao'
+
+- Criar a classe 'ExpenseDAO.kt'
+
+class ExpenseDAO {
+
+    fun insert(expense: Expense): Boolean {
+        val dataSource = HikariDataSource()
+        dataSource.driverClassName = "com.mysql.cj.jdbc.Driver"
+        dataSource.jdbcUrl = "jdbc:mysql://localhost:3306/expenses"
+        dataSource.username = "root"
+        dataSource.password = "root"
+
+        val connection = dataSource.connection
+        var result = false
+        try {
+            val sql = "INSERT INTO expenses (description, value, paid_at) VALUES (?, ?, ?)"
+
+            val preparedStatement = connection.prepareStatement(sql)
+            preparedStatement.setString(1, expense.description)
+            preparedStatement.setDouble(2, expense.value)
+            preparedStatement.setTimestamp(3, Timestamp(expense.paid_at.toEpochMilli()))
+
+            result = preparedStatement.execute()
+        } catch(e: Exception) {
+            e.printStackTrace()
+        } finally {
+            connection.close()
+        }
+        return result
+    }
+
+}
+
+
+Service
+----------------------------------------------------------------------------------------------------
+- Criar o pacote 'com.ctseducare.expensebook.service'
+
+- Criar a classe 'ExpenseService.kt'
+
+class ExpenseService {
+
+    fun insert(expense: Expense) : Expense {
+        dao.insert(expense)
+        return expense
+    }
+
+    private companion object {
+        val dao = ExpenseDAO()
+    }
+
+}
+
+
+Route
+----------------------------------------------------------------------------------------------------
+- Criar o arquivo 'ExpenseRoute.kt' no pacote 'com.ctseducare.expensebook.route'
+
+fun Route.expense() {
+    route("/expense") {
+        post {
+            val request = call.receive<Expense>()
+            
+            val service = ExpenseService()
+            val response = service.insert(request)
+            
+            call.respond(HttpStatusCode.OK, response)
+        }
+    }
+}
+
+
+Routing
+----------------------------------------------------------------------------------------------------
+- Alterar a função 'configureRouting' que esta no arquivo 'Routing.kt'
+
+fun Application.configureRouting() {
+    routing {
+        status()
+        expense()
+    }
+}
+
+
+
